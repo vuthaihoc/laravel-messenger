@@ -6,6 +6,7 @@ use Cmgmyr\Messenger\Models\Models;
 use Cmgmyr\Messenger\Models\Participant;
 use Cmgmyr\Messenger\Models\Thread;
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
 use ReflectionClass;
 
@@ -126,7 +127,7 @@ class EloquentThreadTest extends TestCase
         $this->assertCount(4, $participantIds);
         $this->assertEquals(999, end($participantIds));
 
-        $this->assertInternalType('array', $participantIds);
+        $this->assertIsArray( $participantIds);
     }
 
     /** @test */
@@ -155,7 +156,7 @@ class EloquentThreadTest extends TestCase
         $thread->participants()->saveMany([$user_1, $user_2]);
 
         $threadUserIds = $thread->users()->get()->pluck('id')->toArray();
-        $this->assertArraySubset([1, 2], $threadUserIds);
+        $this->assertEquals([1, 2], $threadUserIds);
     }
 
     /** @test */
@@ -275,10 +276,11 @@ class EloquentThreadTest extends TestCase
 
     /**
      * @test
-     * @expectedException \Illuminate\Database\Eloquent\ModelNotFoundException
      */
     public function it_should_throw_an_exception_when_participant_is_not_found()
     {
+        $this->expectException(ModelNotFoundException::class);
+
         $thread = $this->faktory->create('thread');
 
         $thread->getParticipantFromUser(99);
